@@ -30,7 +30,7 @@ public:
 	void RollDice(HDC hDC, double x, double y, double dotsize, int randint, double degrees);
 	void InitializeBrushes();
 	void InitializeColors(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3);
-	void line(HDC hdc, int x1, int y1, int x2, int y2);
+	void line(HDC hDC, int x1, int y1, int x2, int y2);
 	void centerOrientedHorizontalLine(HDC hDC, double cx, double cy, double size);
 	~Domino();
 private:
@@ -165,6 +165,7 @@ void Domino::DominoBase(HDC hDC, double cx, double cy, double size, int degrees)
 
 void Domino::DrawDomino(HDC hDC, double cx, double cy, double size, int degrees, int randint, int randint2)
 {
+	SelectObject(hDC, hPen);
 	SelectObject(hDC, hBrush1);
 	DominoBase(hDC, cx, cy, size, degrees);
 	double sizeMinusPadding = 0.80*size;
@@ -177,10 +178,10 @@ void Domino::DrawDomino(HDC hDC, double cx, double cy, double size, int degrees,
 	RollDice(hDC, cx, cy - size, dotsize, randint, degrees-136);
 	RollDice(hDC, cx, cy + size, dotsize, randint2, degrees-136);
 }
-void Domino::line(HDC hdc, int x1, int y1, int x2, int y2)
+void Domino::line(HDC hDC, int x1, int y1, int x2, int y2)
 {
-	MoveToEx(hdc, x1, y1, NULL);
-	LineTo(hdc, x2, y2);
+	MoveToEx(hDC, x1, y1, NULL);
+	LineTo(hDC, x2, y2);
 }
 void Domino::centerOrientedHorizontalLine(HDC hDC, double cx, double cy, double size)
 {
@@ -339,12 +340,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT Ps;
 	HPEN hPen;
 
-	HBRUSH hBrush4;
+	//HBRUSH hBrush4;
 	HFONT hFont;
 	RECT rektangle; //rectangle object, defines x and y values
 	RECT rektangle2;
 
-	
+
 	int fontHeight = 50;
 	static int x = 380;
 	static int y = 380;
@@ -375,22 +376,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	static int numeven = 0;
 
-	static vector<Domino> DominoSet;
+	Domino DominoSet[] = {	Domino(red, red2, red3, green, green2, green3, blue, blue2, blue3)
+							 };
 
-	Domino o1(red, red2, red3, green, green2, green3, blue, blue2, blue3);
-	DominoSet.push_back(o1);
-	Domino o2(red, red2, red3, green, green2, green3, blue, blue2, blue3);
-	DominoSet.push_back(o2);
-	Domino o3(red, red2, red3, green, green2, green3, blue, blue2, blue3);
-	DominoSet.push_back(o3);
-	Domino o4(red, red2, red3, green, green2, green3, blue, blue2, blue3);
-	DominoSet.push_back(o4);
-	Domino o5(red, red2, red3, green, green2, green3, blue, blue2, blue3);
-	DominoSet.push_back(o5);
-	Domino o6(red, red2, red3, green, green2, green3, blue, blue2, blue3);
-	DominoSet.push_back(o6);
-	Domino o7(red, red2, red3, green, green2, green3, blue, blue2, blue3);
-	DominoSet.push_back(o7);
+	//Domino o1(red, red2, red3, green, green2, green3, blue, blue2, blue3);
+	
 
 	switch (msg)
 	{
@@ -398,18 +388,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			hDC = BeginPaint(hwnd, &Ps);
 			
 			
-			hBrush4 = CreateSolidBrush(RGB(red4, green4, blue4));
+			//hBrush4 = CreateSolidBrush(RGB(red4, green4, blue4));
 			hFont = CreateFont(fontHeight, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, L"Times New Roman");
 
 //			SelectObject(hDC, hBrush);
 			//DrawDomino(hDC, x, y, size, degrees, randint, randint2, hBrush, hBrush2, hBrush3);
 			//DominoDeck[0].DrawDomino(hDC, x, y, size, degrees, randint, randint2, hBrush, hBrush2, hBrush3);
 			
-			for (unsigned int i = 0; i++; i < DominoSet.size())
+			/*for (unsigned int i = 0; i++; i < DominoSet.size())
 			{
 				DominoSet[i].DrawDomino(hDC, x, y, size, degrees, randint, randint2);
 
-			}
+			}*/
+
+			DominoSet[0].DrawDomino(hDC, x, y, size, degrees, randint, randint2);
 			
 			
 			//SelectObject(hDC, hBrush3);
@@ -448,7 +440,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			DrawText(hDC, L"Press R to rotate", -1, &rektangle2, DT_SINGLELINE | DT_CENTER);
 
 			
-			DeleteObject(hBrush4);
+			//DeleteObject(hBrush4);
 			DeleteObject(hFont);
 			EndPaint(hwnd, &Ps);
 			break;
