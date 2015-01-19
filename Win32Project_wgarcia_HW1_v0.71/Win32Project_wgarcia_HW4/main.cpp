@@ -13,7 +13,7 @@ const wchar_t g_szClassName[] = L"myWindowClass";
 class Domino
 {
 public:
-	Domino(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3, double x, double y, int rand1, int rand2, int getsize);
+	Domino(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3, double x, double y, int getsize);
 	
 	void Circle(HDC hDC, double cx, double cy, double radius);
 	void Square(HDC hDC, double cx, double cy, double size, int degrees);
@@ -33,7 +33,7 @@ public:
 	void InitializeColors(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3);
 	void line(HDC hDC, double x1, double y1, double x2, double y2);
 	void centerOrientedHorizontalLine(HDC hDC, double cx, double cy, double size);
-	int UpdateRandint(int getrand1, int getrand2);
+	void UpdateRandint(int getrand1, int getrand2);
 	unsigned int CompareRands();
 
 	~Domino();
@@ -42,8 +42,8 @@ private:
 	HBRUSH hBrush1;
 	HBRUSH hBrush2;
 	HBRUSH hBrush3;
-	int randint1;
-	int randint2;
+	int squareint1 = rand() % 7;
+	int squareint2 = rand() % 7;
 	double cx;
 	double cy;
 	int red1; int green1; int blue1;
@@ -56,10 +56,8 @@ private:
 //void Square(HDC hDC, int cx, int cy, int area);
 
 /*<---------------------Constructor--------------------------*/
-Domino::Domino(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3, double x, double y, int rand1, int rand2, int getsize)
+Domino::Domino(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3, double x, double y, int getsize)
 {
-	randint1 = rand1;
-	randint2 = rand2;
 	size = getsize;
 	cx = x;
 	cy = y;
@@ -187,8 +185,8 @@ void Domino::DrawDomino(HDC hDC, int degrees)
 	Square(hDC, cx, cy + size, sizeMinusPadding, degrees);
 	centerOrientedHorizontalLine(hDC, cx, cy, sizeMinusPadding);
 	SelectObject(hDC, hBrush2);
-	RollDice(hDC, cx, cy - size, dotsize, randint1, degrees-136);
-	RollDice(hDC, cx, cy + size, dotsize, randint2, degrees-136);
+	RollDice(hDC, cx, cy - size, dotsize, squareint1, degrees-136);
+	RollDice(hDC, cx, cy + size, dotsize, squareint2, degrees-136);
 }
 void Domino::line(HDC hDC, double x1, double y1, double x2, double y2)
 {
@@ -278,20 +276,10 @@ void Domino::HexaDot(HDC hDC, double x, double y, double dotsize, double degrees
 /*<!/-------------------shapes------------------------------>*/
 
 /*<!--------------------Dice functions-----------------------*/
-int Domino::UpdateRandint(int getrand1, int getrand2)
+void Domino::UpdateRandint(int getrand1, int getrand2)
 {
-	int count = 0;
-	randint1 = getrand1;
-	randint2 = getrand2;
-	if ((randint1 % 2 == 0))
-	{
-		count++;
-	}
-	if ((randint2 % 2 == 0))
-	{
-		count++;
-	}
-	return count;
+	squareint1 = getrand1;
+	squareint2 = getrand2;
 }
 double Domino::toRadians(double angle)
 {
@@ -354,9 +342,9 @@ Domino::~Domino()
 	DeleteObject(hBrush3);
 }
 unsigned int Domino::CompareRands()
-{
+{ 
 	int count = 0;
-	if (((randint1+randint2) % 2) == 0) { count++; }
+	if (((squareint1+squareint2) % 2) == 0) { count++; }
 	return count;
 }
 /*<!/-------------------Dice functions-----------------------*/
@@ -374,13 +362,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 
 	int fontHeight = 50;
-	static int x = 250;
+	static int x = 100;
 	static int y = 380;
 	static int size = 50; //domino size
 	static int degrees = 0;
 	srand((unsigned int)time(NULL));
 
-	static int randint1 = rand()% 7;
+	static int randint1 = rand() % 7;
 	static int randint2 = rand()% 7;
 
 	static int red = 255;
@@ -400,12 +388,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	static int green2 = 0;
 
 	static int numeven = 0;
-	static int DominoSetSize = 1;
+	
 
 	static bool programFirstRun = 1;
 
 	wstring displayString = L"";
-	Domino DominoSet[] = { Domino(red, red2, red3, green, green2, green3, blue, blue2, blue3, x, y, randint1, randint2, size)
+
+	static int DominoSetLength = 2;
+
+
+	Domino DominoSet[] = {	Domino(red, red2, red3, green, green2, green3, blue, blue2, blue3, x, y, size),
+							Domino(red, red2, red3, green, green2, green3, blue, blue2, blue3, x+3*size, y, size),
 	};
 	
 
@@ -425,15 +418,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			//DrawDomino(hDC, x, y, size, degrees, randint, randint2, hBrush, hBrush2, hBrush3);
 			//DominoDeck[0].DrawDomino(hDC, x, y, size, degrees, randint, randint2, hBrush, hBrush2, hBrush3);
 			
-		/*	for (unsigned int i = 0; i++; i < DominoSetSize)
+		/*	for (unsigned int i = 0; i++; i < DominoSetLength)
 			{
 				DominoSet[i].DrawDomino(hDC, size, degrees);
 			}*/
 
 			
-
-			DominoSet[0].DrawDomino(hDC, degrees);
+			for (unsigned int i = 0; i < (unsigned)DominoSetLength; i++)
+			{
+				DominoSet[i].DrawDomino(hDC, degrees);
+			}
 			
+			//if (programFirstRun)
+			//{
+			//	for (int i = 0; i < DominoSetLength; i++)
+			//	{
+			//		randint1 = (rand() % 7);
+			//		randint2 = (rand() % 7);
+			//		DominoSet[i].UpdateRandint(randint1, randint2);
+			//	}
+			//	programFirstRun = false;
+			//}
 			
 			//SelectObject(hDC, hBrush3);
 			//Square(hDC, x2, y2, size, degrees);
@@ -444,7 +449,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			//RollDice(hDC, x2, y2, dotsize, randint2, degrees);
 			//numeven = CompareRands(randint, randint2);
 
-			for (unsigned int i = 0; i < (unsigned)DominoSetSize; i++)
+			for (unsigned int i = 0; i < (unsigned)DominoSetLength; i++)
 			{
 				numeven += DominoSet[i].CompareRands();
 			}
@@ -574,10 +579,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 			else if (wParam == 32)
 			{
-			   	for (int i = 0; i < DominoSetSize; i++)
+			   	for (int i = 0; i < DominoSetLength; i++)
 				{
-					randint1 = rand() % 7;
-					randint2 = rand() % 7;
+					randint1 = (rand() % 7);
+					randint2 = (rand() % 7);
 					DominoSet[i].UpdateRandint(randint1, randint2);
 				}
 				InvalidateRect(hwnd, NULL, true);
