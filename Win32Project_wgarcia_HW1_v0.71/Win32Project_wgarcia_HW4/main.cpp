@@ -13,11 +13,12 @@ const wchar_t g_szClassName[] = L"myWindowClass";
 class Domino
 {
 public:
-	Domino(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3);
+	Domino(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3, double x, double y, int rand1, int rand2, int getsize);
+	
 	void Circle(HDC hDC, double cx, double cy, double radius);
 	void Square(HDC hDC, double cx, double cy, double size, int degrees);
 	void DominoBase(HDC hDC, double cx, double cy, double size, int degrees);
-	void DrawDomino(HDC hDC, double cx, double cy, double size, int degrees, int randint, int randint2);
+	void DrawDomino(HDC hDC, int degrees);
 
 	double toRadians(double angle);
 	double getPolarRadius(double xr, double yr);
@@ -30,29 +31,38 @@ public:
 	void RollDice(HDC hDC, double x, double y, double dotsize, int randint, double degrees);
 	void InitializeBrushes();
 	void InitializeColors(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3);
-	void line(HDC hDC, int x1, int y1, int x2, int y2);
+	void line(HDC hDC, double x1, double y1, double x2, double y2);
 	void centerOrientedHorizontalLine(HDC hDC, double cx, double cy, double size);
+	int UpdateRandint(int getrand1, int getrand2);
+	unsigned int CompareRands();
+
 	~Domino();
 private:
 	HPEN hPen;
 	HBRUSH hBrush1;
 	HBRUSH hBrush2;
 	HBRUSH hBrush3;
-	static int randint;
-	static int randint2;
+	int randint1;
+	int randint2;
 	double cx;
-	double xy;
+	double cy;
 	int red1; int green1; int blue1;
 	int red2; int green2; int blue2;
 	int red3; int green3; int blue3;
+	int size;
 };
 
 //void Circle(HDC hDC, int cx, int cy, int radius, int size);
 //void Square(HDC hDC, int cx, int cy, int area);
 
 /*<---------------------Constructor--------------------------*/
-Domino::Domino(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3)
+Domino::Domino(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3, double x, double y, int rand1, int rand2, int getsize)
 {
+	randint1 = rand1;
+	randint2 = rand2;
+	size = getsize;
+	cx = x;
+	cy = y;
 	InitializeColors(red1, red2, red3, green1, green2, green3, blue1, blue2, blue3);
 	InitializeBrushes();
 }
@@ -163,43 +173,33 @@ void Domino::DominoBase(HDC hDC, double cx, double cy, double size, int degrees)
 	Polygon(hDC, ptArray, 5); //create square
 }
 
-void Domino::DrawDomino(HDC hDC, double cx, double cy, double size, int degrees, int randint, int randint2)
+void Domino::DrawDomino(HDC hDC, int degrees)
 {
 	SelectObject(hDC, hPen);
 	SelectObject(hDC, hBrush1);
 	DominoBase(hDC, cx, cy, size, degrees);
+
 	double sizeMinusPadding = 0.80*size;
 	double dotsize = sizeMinusPadding / 6;
+
 	SelectObject(hDC, hBrush3);
 	Square(hDC, cx, cy - size, sizeMinusPadding, degrees);
 	Square(hDC, cx, cy + size, sizeMinusPadding, degrees);
 	centerOrientedHorizontalLine(hDC, cx, cy, sizeMinusPadding);
 	SelectObject(hDC, hBrush2);
-	RollDice(hDC, cx, cy - size, dotsize, randint, degrees-136);
+	RollDice(hDC, cx, cy - size, dotsize, randint1, degrees-136);
 	RollDice(hDC, cx, cy + size, dotsize, randint2, degrees-136);
 }
-void Domino::line(HDC hDC, int x1, int y1, int x2, int y2)
+void Domino::line(HDC hDC, double x1, double y1, double x2, double y2)
 {
-	MoveToEx(hDC, x1, y1, NULL);
-	LineTo(hDC, x2, y2);
+	MoveToEx(hDC, (int)x1, (int)y1, NULL);
+	LineTo(hDC, (int)x2, (int)y2);
 }
 void Domino::centerOrientedHorizontalLine(HDC hDC, double cx, double cy, double size)
 {
 	line(hDC, cx - size, cy, cx + size, cy);
 }
-/*<!/-------------------shapes------------------------------>*/
 
-/*<!--------------------Dice functions-----------------------*/
-double Domino::toRadians(double angle)
-{
-	return (3.14) - (angle * PI / 180);
-}
-double Domino::getPolarRadius(double xr, double yr)
-{
-	double xrsquared = pow(xr, 2);
-	double yrsquared = pow(yr, 2);
-	return sqrt(xrsquared + yrsquared);
-}
 void Domino::SingleDot(HDC hDC, double x, double y, double dotsize)
 {
 	Circle(hDC, x, y, dotsize);
@@ -275,6 +275,35 @@ void Domino::HexaDot(HDC hDC, double x, double y, double dotsize, double degrees
 	Circle(hDC, (r*cos(radians + 0.785)) + x, (r*sin(radians + 0.785)) + y, dotsize); //rotate 45 degrees
 	Circle(hDC, -(r*cos(radians + 0.785)) + x, -(r*sin(radians + 0.785)) + y, dotsize); //rotate 45 degrees
 }
+/*<!/-------------------shapes------------------------------>*/
+
+/*<!--------------------Dice functions-----------------------*/
+int Domino::UpdateRandint(int getrand1, int getrand2)
+{
+	int count = 0;
+	randint1 = getrand1;
+	randint2 = getrand2;
+	if ((randint1 % 2 == 0))
+	{
+		count++;
+	}
+	if ((randint2 % 2 == 0))
+	{
+		count++;
+	}
+	return count;
+}
+double Domino::toRadians(double angle)
+{
+	return (3.14) - (angle * PI / 180);
+}
+double Domino::getPolarRadius(double xr, double yr)
+{
+	double xrsquared = pow(xr, 2);
+	double yrsquared = pow(yr, 2);
+	return sqrt(xrsquared + yrsquared);
+}
+
 void Domino::RollDice(HDC hDC, double x, double y, double dotsize, int randint, double degrees)
 {
 	switch (randint)
@@ -324,11 +353,10 @@ Domino::~Domino()
 	DeleteObject(hBrush2);
 	DeleteObject(hBrush3);
 }
-unsigned int CompareRands(int randinta, int randintb)
+unsigned int Domino::CompareRands()
 {
 	int count = 0;
-	if ((randinta % 2) == 0) { count++; }
-	if ((randintb % 2) == 0) { count++; }
+	if (((randint1+randint2) % 2) == 0) { count++; }
 	return count;
 }
 /*<!/-------------------Dice functions-----------------------*/
@@ -338,7 +366,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	HDC hDC; //handle to device context
 	PAINTSTRUCT Ps;
-	HPEN hPen;
 
 	//HBRUSH hBrush4;
 	HFONT hFont;
@@ -347,16 +374,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 
 	int fontHeight = 50;
-	static int x = 380;
+	static int x = 250;
 	static int y = 380;
-	static int x2 = x + 300;
-	static int y2 = y;
-	static int size = 90; //squure size
-	static int dotsize = size / 6;
+	static int size = 50; //domino size
 	static int degrees = 0;
 	srand((unsigned int)time(NULL));
-	static int randint = (rand() % 7);
-	static int randint2 = (rand() % 7);
+
+	static int randint1 = rand()% 7;
+	static int randint2 = rand()% 7;
 
 	static int red = 255;
 	static int green = 253;
@@ -375,9 +400,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	static int green2 = 0;
 
 	static int numeven = 0;
+	static int DominoSetSize = 1;
 
-	Domino DominoSet[] = {	Domino(red, red2, red3, green, green2, green3, blue, blue2, blue3)
-							 };
+	static bool programFirstRun = 1;
+
+	wstring displayString = L"";
+	Domino DominoSet[] = { Domino(red, red2, red3, green, green2, green3, blue, blue2, blue3, x, y, randint1, randint2, size)
+	};
+	
 
 	//Domino o1(red, red2, red3, green, green2, green3, blue, blue2, blue3);
 	
@@ -395,13 +425,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			//DrawDomino(hDC, x, y, size, degrees, randint, randint2, hBrush, hBrush2, hBrush3);
 			//DominoDeck[0].DrawDomino(hDC, x, y, size, degrees, randint, randint2, hBrush, hBrush2, hBrush3);
 			
-			/*for (unsigned int i = 0; i++; i < DominoSet.size())
+		/*	for (unsigned int i = 0; i++; i < DominoSetSize)
 			{
-				DominoSet[i].DrawDomino(hDC, x, y, size, degrees, randint, randint2);
-
+				DominoSet[i].DrawDomino(hDC, size, degrees);
 			}*/
 
-			DominoSet[0].DrawDomino(hDC, x, y, size, degrees, randint, randint2);
+			
+
+			DominoSet[0].DrawDomino(hDC, degrees);
 			
 			
 			//SelectObject(hDC, hBrush3);
@@ -413,34 +444,30 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			//RollDice(hDC, x2, y2, dotsize, randint2, degrees);
 			//numeven = CompareRands(randint, randint2);
 
+			for (unsigned int i = 0; i < (unsigned)DominoSetSize; i++)
+			{
+				numeven += DominoSet[i].CompareRands();
+			}
+
 			rektangle.top = 100;
 			rektangle.bottom = 150;
-			rektangle.right = 1000;
-			rektangle.left = 320;
+			rektangle.right = 900;
+			rektangle.left = 250;
 
 			SelectObject(hDC, hFont);
-			
-			switch (numeven)
-			{
-				case 0:
-					DrawText(hDC, L"There are 0 even dice", -1, &rektangle, DT_SINGLELINE);
-					break;
-				case 1:
-					DrawText(hDC, L"There are 1 even dice", -1, &rektangle, DT_SINGLELINE);
-					break;
-				case 2:
-					DrawText(hDC, L"There are 2 even dice", -1, &rektangle, DT_SINGLELINE);
-					break;
-			}
+
+			displayString = L"There are " + to_wstring(numeven) + L" even dominoes!";
+			DrawText(hDC, displayString.c_str(), -1, &rektangle, DT_CENTER | DT_WORDBREAK);
 
 			rektangle2.top = 650;
 			rektangle2.bottom = 700;
 			rektangle2.right = 680;
 			rektangle2.left = 380;
-			DrawText(hDC, L"Press R to rotate", -1, &rektangle2, DT_SINGLELINE | DT_CENTER);
+			//DrawText(hDC, L"Press R to rotate", -1, &rektangle2, DT_SINGLELINE | DT_CENTER);
 
 			
 			//DeleteObject(hBrush4);
+			numeven = 0;
 			DeleteObject(hFont);
 			EndPaint(hwnd, &Ps);
 			break;
@@ -515,31 +542,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			if (wParam == VK_DOWN)
 			{
 				y += 10;
-				y2 += 10;
 				InvalidateRect(hwnd, NULL, true); //invalidate window
 			}
 			else if (wParam == VK_UP)
 			{
 				y -= 10;
-				y2 -= 10;
 				InvalidateRect(hwnd, NULL, true);
 			}
 			else if (wParam == VK_LEFT)
 			{
 				x -= 10;
-				x2 -= 10;
 				InvalidateRect(hwnd, NULL, true);
 			}
 			else if (wParam == VK_RIGHT)
 			{
 				x += 10;
-				x2 += 10;
 				InvalidateRect(hwnd, NULL, true);
 			}
 			else if (wParam == 33)
 			{
 				size += 6;
-				dotsize += 1;
 				InvalidateRect(hwnd, NULL, true);
 			}
 			else if (wParam == 34)
@@ -547,14 +569,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				if (size >= 10)
 				{
 					size -= 6;
-					dotsize -= 1;
 					InvalidateRect(hwnd, NULL, true);
 				}
 			}
 			else if (wParam == 32)
 			{
-				randint = (rand() % 6) + 1;
-				randint2 = (rand() % 6) + 1;
+			   	for (int i = 0; i < DominoSetSize; i++)
+				{
+					randint1 = rand() % 7;
+					randint2 = rand() % 7;
+					DominoSet[i].UpdateRandint(randint1, randint2);
+				}
 				InvalidateRect(hwnd, NULL, true);
 			}
 			break;
