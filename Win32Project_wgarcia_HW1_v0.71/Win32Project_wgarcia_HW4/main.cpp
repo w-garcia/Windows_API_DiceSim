@@ -13,7 +13,7 @@ const wchar_t g_szClassName[] = L"myWindowClass";
 class Domino
 {
 public:
-	Domino(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3, double x, double y, int getsize);
+	Domino(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3, double x, double y, int getsize, int getrand1, int getrand2);
 	
 	void Circle(HDC hDC, double cx, double cy, double radius);
 	void Square(HDC hDC, double cx, double cy, double size, int degrees);
@@ -42,8 +42,8 @@ private:
 	HBRUSH hBrush1;
 	HBRUSH hBrush2;
 	HBRUSH hBrush3;
-	int squareint1 = rand() % 7;
-	int squareint2 = rand() % 7;
+	int squareint1;
+	int squareint2;
 	double cx;
 	double cy;
 	int red1; int green1; int blue1;
@@ -56,8 +56,10 @@ private:
 //void Square(HDC hDC, int cx, int cy, int area);
 
 /*<---------------------Constructor--------------------------*/
-Domino::Domino(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3, double x, double y, int getsize)
+Domino::Domino(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3, double x, double y, int getsize, int getrand1, int getrand2)
 {
+	squareint1 = getrand1;
+	squareint2 = getrand2;
 	size = getsize;
 	cx = x;
 	cy = y;
@@ -366,26 +368,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	static int y = 380;
 	static int size = 50; //domino size
 	static int degrees = 0;
+
 	srand((unsigned int)time(NULL));
+	static int randint[14] = {	rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7,
+								rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7 };
+	static int randintsize = 14;
 
-	static int randint1 = rand() % 7;
-	static int randint2 = rand()% 7;
+	static int red[7] = { 255, 255, 255, 255, 255, 255, 255 };
+	static int green[7] = { 253, 253, 253, 253, 253, 253, 253 };
+	static int blue[7] = { 230, 230, 230, 230, 230, 230, 230 };
 
-	static int red = 255;
-	static int green = 253;
-	static int blue = 230;
+	static int red3[7] = { 255, 255, 255, 255, 255, 255, 255 };
+	static int green3[7] = { 253, 253, 253, 253, 253, 253, 253 };
+	static int blue3[7] = { 230, 230, 230, 230, 230, 230, 230 };
 
-	static int red3 = 255;
-	static int green3 = 253;
-	static int blue3 = 230;
+	static int red4[7] = { 0, 0, 0, 0, 0, 0, 0 };
+	static int green4[7] = { 0, 0, 0, 0, 0, 0, 0 };
+	static int blue4[7] = { 0, 0, 0, 0, 0, 0, 0 };
 
-	static int red4 = 0;
-	static int green4 = 0;
-	static int blue4 = 0;
-
-	static int red2 = 0;
-	static int blue2 = 0;
-	static int green2 = 0;
+	static int red2[7] = { 0, 0, 0, 0, 0, 0, 0 };
+	static int blue2[7] = { 0, 0, 0, 0, 0, 0, 0 };
+	static int green2[7] = { 0, 0, 0, 0, 0, 0, 0 };
 
 	static int numeven = 0;
 	
@@ -394,24 +397,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	wstring displayString = L"";
 
-	static int DominoSetLength = 2;
 
-
-	Domino DominoSet[] = {	Domino(red, red2, red3, green, green2, green3, blue, blue2, blue3, x, y, size),
-							Domino(red, red2, red3, green, green2, green3, blue, blue2, blue3, x+3*size, y, size),
-	};
-	
-
-	//Domino o1(red, red2, red3, green, green2, green3, blue, blue2, blue3);
-	
+	static int DominoSetLength = 7; //How many dominoes are in the array/set
+	Domino DominoSet[] = {	Domino(red[0], red2[0], red3[0], green[0], green2[0], green3[0], blue[0], blue2[0], blue3[0], x, y, size, randint[0], randint[1]),
+							Domino(red[1], red2[1], red3[1], green[1], green2[1], green3[1], blue[1], blue2[1], blue3[1], x + 3 * size, y, size, randint[2], randint[3]),
+							Domino(red[2], red2[2], red3[2], green[2], green2[2], green3[2], blue[2], blue2[2], blue3[2], x + 6 * size, y, size, randint[4], randint[5]),
+							Domino(red[3], red2[3], red3[3], green[3], green2[3], green3[3], blue[3], blue2[3], blue3[3], x + 9 * size, y, size, randint[6], randint[7]),
+							Domino(red[4], red2[4], red3[4], green[4], green2[4], green3[4], blue[4], blue2[4], blue3[4], x + 12 * size, y, size, randint[8], randint[9]),
+							Domino(red[5], red2[5], red3[5], green[5], green2[5], green3[5], blue[5], blue2[5], blue3[5], x + 15 * size, y, size, randint[10], randint[11]),
+							Domino(red[6], red2[6], red3[6], green[6], green2[6], green3[6], blue[6], blue2[6], blue3[6], x + 18 * size, y, size, randint[12], randint[13]),
+						};
 
 	switch (msg)
 	{
 		case WM_PAINT:
 			hDC = BeginPaint(hwnd, &Ps);
-			
-			
-			//hBrush4 = CreateSolidBrush(RGB(red4, green4, blue4));
+
 			hFont = CreateFont(fontHeight, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, L"Times New Roman");
 
 //			SelectObject(hDC, hBrush);
@@ -423,22 +424,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				DominoSet[i].DrawDomino(hDC, size, degrees);
 			}*/
 
+			//if (programFirstRun)
+			//{
+			//	for (unsigned int i = 0; i < DominoSetLength; i++)
+			//	{
+			//		DominoSet[i].UpdateRandint();
+			//	}
+			//	programFirstRun = false;
+			//}
 			
 			for (unsigned int i = 0; i < (unsigned)DominoSetLength; i++)
 			{
 				DominoSet[i].DrawDomino(hDC, degrees);
 			}
 			
-			//if (programFirstRun)
-			//{
-			//	for (int i = 0; i < DominoSetLength; i++)
-			//	{
-			//		randint1 = (rand() % 7);
-			//		randint2 = (rand() % 7);
-			//		DominoSet[i].UpdateRandint(randint1, randint2);
-			//	}
-			//	programFirstRun = false;
-			//}
+		
 			
 			//SelectObject(hDC, hBrush3);
 			//Square(hDC, x2, y2, size, degrees);
@@ -479,44 +479,56 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_CHAR:
 			if (wParam == 'c' || wParam == 'C')
 			{
-				red = (rand() % 256);
-				green = (rand() % 256);
-				blue = (rand() % 256);
+				for (int i = 0; i < DominoSetLength; i++)
+				{
+					red[i] = (rand() % 256);
+					green[i] = (rand() % 256);
+					blue[i] = (rand() % 256);
 
-				red3 = (rand() % 256);
-				green3 = (rand() % 256);
-				blue3 = (rand() % 256);
+					red3[i] = (rand() % 256);
+					green3[i] = (rand() % 256);
+					blue3[i] = (rand() % 256);
+				}
+				
 				
 				try //check if the background is dark
 				{
-					if ((red < 128) && (green < 128) && (blue < 128))
+					for (int i = 0; i < DominoSetLength; i++)
 					{
-						red2 = 0;
-						blue2 = 0;
-						green2 = 0;
-						red2 = (rand() % 127) + 128; //create light shaded dot 
-						blue2 = (rand() % 127) + 128;
-						green2 = (rand() % 127) + 128;
-						if ((red2 > 256) || (blue2 > 256) || (green2 > 256)) throw (1);
-						InvalidateRect(hwnd, NULL, true);
-						break;
+						if ((red[i] < 128) && (green[i] < 128) && (blue[i] < 128))
+						{
+							red2[i] = 0;
+							blue2[i] = 0;
+							green2[i] = 0;
+							red2[i] = (rand() % 127) + 128; //create light shaded dot 
+							blue2[i] = (rand() % 127) + 128;
+							green2[i] = (rand() % 127) + 128;
+
+							if ((red2[i] > 256) || (blue2[i] > 256) || (green2[i] > 256)) throw (1);
+							InvalidateRect(hwnd, NULL, true);
+							break;
+						}
 					}
-					if ((red3 < 128) && (green3 < 128) && (blue3 < 128))
+					for (int i = 0; i < DominoSetLength; i++)
 					{
-						red4 = 0;
-						blue4 = 0;
-						green4 = 0;
-						red4 = (rand() % 127) + 128; //create light shaded dot 
-						blue4 = (rand() % 127) + 128;
-						green4 = (rand() % 127) + 128;
-						if ((red4 > 256) || (blue4 > 256) || (green4 > 256)) throw (2);
-						InvalidateRect(hwnd, NULL, true);
-						break;
+						if ((red3[i] < 128) && (green3[i] < 128) && (blue3[i] < 128))
+						{
+							red4[i] = 0;
+							blue4[i] = 0;
+							green4[i] = 0;
+							red4[i] = (rand() % 127) + 128; //create light shaded dot 
+							blue4[i] = (rand() % 127) + 128;
+							green4[i] = (rand() % 127) + 128;
+							if ((red4[i] > 256) || (blue4[i] > 256) || (green4[i] > 256)) throw (2);
+							InvalidateRect(hwnd, NULL, true);
+							break;
+						}
 					}
+				
 				}
 				catch (int a)
 				{
-					if (a == 1)
+	/*				if (a == 1)
 					{
 						red2 = 0;
 						blue2 = 0;
@@ -529,12 +541,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						blue4 = 0;
 						green4 = 0;
 						break;
-					}
+					}*/
 				}
 				//otherwise just create dark dots
-				red2 = (rand() % 128);
-				blue2 = (rand() % 128);
-				green2 = (rand() % 128);
+				for (int i = 0; i < DominoSetLength; i++)
+				{
+					red2[i] = (rand() % 128);
+					blue2[i] = (rand() % 128);
+					green2[i] = (rand() % 128);
+				}
+				
 				InvalidateRect(hwnd, NULL, true);
 			}
 		/*	else if (wParam == 'r' || wParam == 'R')
@@ -579,12 +595,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 			else if (wParam == 32)
 			{
-			   	for (int i = 0; i < DominoSetLength; i++)
+				for (int i = 0; i < randintsize; i++)
 				{
-					randint1 = (rand() % 7);
-					randint2 = (rand() % 7);
-					DominoSet[i].UpdateRandint(randint1, randint2);
+					randint[i] = rand() % 7;
 				}
+			 //  	for (int i = 0; i < DominoSetLength; i++)
+				//{
+				//	DominoSet[i].UpdateRandint(rand() % 7, rand() % 7);
+				//}
 				InvalidateRect(hwnd, NULL, true);
 			}
 			break;
