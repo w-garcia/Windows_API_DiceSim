@@ -336,6 +336,13 @@ void Domino::InitializeColors(int reda, int redb, int redc, int greena, int gree
 	green1 = greena; green2 = greenb; green3 = greenc;
 	blue1 = bluea; blue2 = blueb; blue3 = bluec;
 }
+unsigned int Domino::CompareRands()
+{ 
+	int count = 0;
+	if (((squareint1+squareint2) % 2) == 0) { count++; }
+	return count;
+}
+
 Domino::~Domino()
 {
 	DeleteObject(hPen);
@@ -343,12 +350,7 @@ Domino::~Domino()
 	DeleteObject(hBrush2);
 	DeleteObject(hBrush3);
 }
-unsigned int Domino::CompareRands()
-{ 
-	int count = 0;
-	if (((squareint1+squareint2) % 2) == 0) { count++; }
-	return count;
-}
+
 /*<!/-------------------Dice functions-----------------------*/
 
 //step 4: window prcoedure
@@ -357,7 +359,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	HDC hDC; //handle to device context
 	PAINTSTRUCT Ps;
 
-	//HBRUSH hBrush4;
 	HFONT hFont;
 	RECT rektangle; //rectangle object, defines x and y values
 	RECT rektangle2;
@@ -372,21 +373,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	srand((unsigned int)time(NULL));
 	static int randint[14] = {	rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7,
 								rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7 };
-	static int randintsize = 14;
+	static int randintsize = 14; //We need 2 random numbers for each domino, so this is twice the number of dominos
 
-	static int red[7] = { 255, 255, 255, 255, 255, 255, 255 };
+	static int red[7] = { 255, 255, 255, 255, 255, 255, 255 }; //domino base brush colors
 	static int green[7] = { 253, 253, 253, 253, 253, 253, 253 };
 	static int blue[7] = { 230, 230, 230, 230, 230, 230, 230 };
 
-	static int red3[7] = { 255, 255, 255, 255, 255, 255, 255 };
+	static int red3[7] = { 255, 255, 255, 255, 255, 255, 255 }; //domino square colors
 	static int green3[7] = { 253, 253, 253, 253, 253, 253, 253 };
 	static int blue3[7] = { 230, 230, 230, 230, 230, 230, 230 };
 
-	static int red4[7] = { 0, 0, 0, 0, 0, 0, 0 };
+	static int red4[7] = { 0, 0, 0, 0, 0, 0, 0 }; 
 	static int green4[7] = { 0, 0, 0, 0, 0, 0, 0 };
 	static int blue4[7] = { 0, 0, 0, 0, 0, 0, 0 };
 
-	static int red2[7] = { 0, 0, 0, 0, 0, 0, 0 };
+	static int red2[7] = { 0, 0, 0, 0, 0, 0, 0 }; //domino dot & pen colors
 	static int blue2[7] = { 0, 0, 0, 0, 0, 0, 0 };
 	static int green2[7] = { 0, 0, 0, 0, 0, 0, 0 };
 
@@ -415,39 +416,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			hFont = CreateFont(fontHeight, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, L"Times New Roman");
 
-//			SelectObject(hDC, hBrush);
-			//DrawDomino(hDC, x, y, size, degrees, randint, randint2, hBrush, hBrush2, hBrush3);
-			//DominoDeck[0].DrawDomino(hDC, x, y, size, degrees, randint, randint2, hBrush, hBrush2, hBrush3);
-			
-		/*	for (unsigned int i = 0; i++; i < DominoSetLength)
-			{
-				DominoSet[i].DrawDomino(hDC, size, degrees);
-			}*/
-
-			//if (programFirstRun)
-			//{
-			//	for (unsigned int i = 0; i < DominoSetLength; i++)
-			//	{
-			//		DominoSet[i].UpdateRandint();
-			//	}
-			//	programFirstRun = false;
-			//}
 			
 			for (unsigned int i = 0; i < (unsigned)DominoSetLength; i++)
 			{
 				DominoSet[i].DrawDomino(hDC, degrees);
 			}
 			
-		
-			
-			//SelectObject(hDC, hBrush3);
-			//Square(hDC, x2, y2, size, degrees);
-
-			//SelectObject(hDC, hBrush2);
-			//RollDice(hDC, x, y, dotsize, randint, degrees);
-			//SelectObject(hDC, hBrush4);
-			//RollDice(hDC, x2, y2, dotsize, randint2, degrees);
-			//numeven = CompareRands(randint, randint2);
 
 			for (unsigned int i = 0; i < (unsigned)DominoSetLength; i++)
 			{
@@ -471,7 +445,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			//DrawText(hDC, L"Press R to rotate", -1, &rektangle2, DT_SINGLELINE | DT_CENTER);
 
 			
-			//DeleteObject(hBrush4);
 			numeven = 0;
 			DeleteObject(hFont);
 			EndPaint(hwnd, &Ps);
@@ -528,20 +501,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 				catch (int a)
 				{
-	/*				if (a == 1)
-					{
-						red2 = 0;
-						blue2 = 0;
-						green2 = 0;
-						break;
-					}
-					if (a == 2)
-					{
-						red4 = 0;
-						blue4 = 0;
-						green4 = 0;
-						break;
-					}*/
+					//This error is impossible
 				}
 				//otherwise just create dark dots
 				for (int i = 0; i < DominoSetLength; i++)
@@ -599,10 +559,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				{
 					randint[i] = rand() % 7;
 				}
-			 //  	for (int i = 0; i < DominoSetLength; i++)
-				//{
-				//	DominoSet[i].UpdateRandint(rand() % 7, rand() % 7);
-				//}
 				InvalidateRect(hwnd, NULL, true);
 			}
 			break;
