@@ -33,7 +33,7 @@ public:
 	void InitializeBrushes();
 	void InitializeColors(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3);
 	void line(HDC hDC, double x1, double y1, double x2, double y2);
-	void centerOrientedHorizontalLine(HDC hDC, double cx, double cy, double size);
+	void centerOrientedHorizontalLine(HDC hDC, double cx, double cy, double size, int degrees);
 	void UpdateRandint(int getrand1, int getrand2);
 	unsigned int CompareRands();
 
@@ -221,6 +221,8 @@ void Domino::DrawDomino(HDC hDC, int degrees)
 
 	int adjustment = 63; //degree adjustment to make dice circles line up with the squares, number is arbitrarily chosen until it looks right
 	int reverseDegrees = -(degrees); //the dice were rotating in the opposite direction so we need this instead
+	double centerOfBotSquare = cy - size;
+	double centerOfTopSquare = cy + size;
 	reverseDegrees += adjustment; 
 
 	SelectObject(hDC, hPen);
@@ -233,23 +235,29 @@ void Domino::DrawDomino(HDC hDC, int degrees)
 	SelectObject(hDC, hBrush3);
 	Square(hDC, cx, cy, sizeMinusPadding, degrees, 0, pptArrayBOT); //gives me values of x and y that reflect the current rotation of the square
 	Square(hDC, cx, cy, sizeMinusPadding, degrees, 1, pptArrayTOP);
-	centerOrientedHorizontalLine(hDC, cx, cy, sizeMinusPadding);
+	centerOrientedHorizontalLine(hDC, cx, cy, sizeMinusPadding, degrees);
 	SelectObject(hDC, hBrush2);
 	/*RollDice(hDC, cx, cy - size, dotsize, squareint1, degrees-136);
 	RollDice(hDC, cx, cy + size, dotsize, squareint2, degrees-136);*/
-	RollDice(hDC, cx, cy - size, dotsize, squareint1, reverseDegrees, pptArrayBOT); //pass the array back into the rolldice to update the position based on rotation of the square
-	RollDice(hDC, cx, cy + size, dotsize, squareint2, reverseDegrees, pptArrayTOP);
+	RollDice(hDC, cx, centerOfBotSquare, dotsize, squareint1, reverseDegrees, pptArrayBOT); //pass the array back into the rolldice to update the position based on rotation of the square
+	RollDice(hDC, cx, centerOfTopSquare, dotsize, squareint2, reverseDegrees, pptArrayTOP);
 }
 void Domino::line(HDC hDC, double x1, double y1, double x2, double y2)
 {
 	MoveToEx(hDC, (int)x1, (int)y1, NULL);
 	LineTo(hDC, (int)x2, (int)y2);
 }
-void Domino::centerOrientedHorizontalLine(HDC hDC, double cx, double cy, double size)
+void Domino::centerOrientedHorizontalLine(HDC hDC, double cx, double cy, double size, int degrees)
 {
+	double degreesInRadians = toRadians(degrees-18); 
+	double LeftPoint = cx - size;
+	double RightPoint = cx + size;
 	POINT origin = { cx, cy };
-
-	line(hDC, cx - size, cy, cx + size, cy);
+	POINT point1 = { LeftPoint, cy };
+	POINT point2 = { RightPoint, cy };
+	Rotate(point1, origin, degreesInRadians);
+	Rotate(point2, origin, degreesInRadians);
+	line(hDC, point1.x, point1.y, point2.x, point2.y);
 }
 
 void Domino::SingleDot(HDC hDC, double x, double y, double dotsize)
