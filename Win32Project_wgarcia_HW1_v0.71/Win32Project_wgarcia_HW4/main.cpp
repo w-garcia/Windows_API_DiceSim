@@ -14,11 +14,13 @@ class Domino
 {
 public:
 	Domino(int red1, int red2, int red3, int green1, int green2, int green3, int blue1, int blue2, int blue3, double x, double y, int getsize, int getrand1, int getrand2, int degrees);
-	
+	//Domino constructor, this initializes all the variables the domino needs with the static variables declared in WindProc
+	//From here the values are distributed to the member functions as they are called. 
+
 	void Circle(HDC hDC, double cx, double cy, double radius);
 	void Square(HDC hDC, double cx, double cy, double size, int degrees, bool position, POINT pptArray[]);
-	void DominoBase(HDC hDC, double cx, double cy, double size, int degrees);
-	void DrawDomino(HDC hDC, int degrees);
+	void DominoBase(HDC hDC, double cx, double cy, double size, int degrees); //Draws the basic rectangle shape
+	void DrawDomino(HDC hDC, int degrees); //Puts together all the shapes and handles rotation of the shapes using DominoBase's values
 
 	void Rotate(POINT& point, POINT origin, double angle);
 	double toRadians(double angle);
@@ -40,13 +42,13 @@ public:
 	~Domino();
 private:
 	HPEN hPen;
-	HBRUSH hBrush1;
+	HBRUSH hBrush1; 
 	HBRUSH hBrush2;
 	HBRUSH hBrush3;
-	int squareint1;
-	int squareint2;
-	double cx;
-	double cy;
+	int squareint1; //random numb for first square
+	int squareint2; //random numb for second square
+	double cx; //origin x value
+	double cy; //origin y value
 	int red1; int green1; int blue1;
 	int red2; int green2; int blue2;
 	int red3; int green3; int blue3;
@@ -93,7 +95,7 @@ void Domino::Square(HDC hDC, double cx, double cy, double size, int degrees, boo
 	/*double xorigin = 0;
 	  double yorigin = 0;
 	  double xoffset = xorigin + size;;; ... redundant */
-	POINT origin = { cx, cy };
+	POINT origin = { (long)cx, (long)cy };
 	double xoffset = size;
 	double yoffset = size;
 	double sidelength = size*2;
@@ -156,7 +158,7 @@ void Domino::DominoBase(HDC hDC, double cx, double cy, double size, int degrees)
 	
 	double polyOriginx = cx;
 	double polyOriginy = cy;
-	POINT origin = { polyOriginx, polyOriginy };
+	POINT origin = { (long)polyOriginx, (long)polyOriginy };
 	double xoffset = size;
 	double yoffset = size;
 	double sidelength = size*2;
@@ -252,9 +254,9 @@ void Domino::centerOrientedHorizontalLine(HDC hDC, double cx, double cy, double 
 	double degreesInRadians = toRadians(degrees-18); 
 	double LeftPoint = cx - size;
 	double RightPoint = cx + size;
-	POINT origin = { cx, cy };
-	POINT point1 = { LeftPoint, cy };
-	POINT point2 = { RightPoint, cy };
+	POINT origin = { (long)cx, (long)cy };
+	POINT point1 = { (long)LeftPoint, (long)cy };
+	POINT point2 = { (long)RightPoint, (long)cy };
 	Rotate(point1, origin, degreesInRadians);
 	Rotate(point2, origin, degreesInRadians);
 	line(hDC, point1.x, point1.y, point2.x, point2.y);
@@ -428,12 +430,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	static int x = 100;
 	static int y = 380;
 	static int size = 50; //domino size
-	static int degrees = -136;
+	static int degrees = -162; //degrees that rotate all objects, number arbitrarily chosen until the dominoes are vertically aligned. 
 
 	srand((unsigned int)time(NULL));
 	static int randint[14] = {	rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7,
 								rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7, rand() % 7, };
-	static int randintsize = 4; //We need 2 random numbers for each domino, so this is twice the number of dominos
+	static int randintsize = 14; //We need 2 random numbers for each domino, so this is twice the number of dominos
 
 	static int red[7] = { 255, 255, 255, 255, 255, 255, 255 }; //domino base brush colors
 	static int green[7] = { 253, 253, 253, 253, 253, 253, 253 };
@@ -454,14 +456,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	static int numeven = 0;
 	
 
-	static bool programFirstRun = 1;
-
 	wstring displayString = L"";
 
 
-	static int DominoSetLength = 2; //How many dominoes are in the array/set
+	static int DominoSetLength = 7; //How many dominoes are in the array/set
 	Domino DominoSet[] = {	Domino(red[0], red2[0], red3[0], green[0], green2[0], green3[0], blue[0], blue2[0], blue3[0], x, y, size, randint[0], randint[1], degrees),
 							Domino(red[1], red2[1], red3[1], green[1], green2[1], green3[1], blue[1], blue2[1], blue3[1], x + 3 * size, y, size, randint[2], randint[3], degrees),
+							Domino(red[2], red2[2], red3[2], green[2], green2[2], green3[2], blue[2], blue2[2], blue3[2], x + 6 * size, y, size, randint[4], randint[5], degrees),
+							Domino(red[3], red2[3], red3[3], green[3], green2[3], green3[3], blue[3], blue2[3], blue3[3], x + 9 * size, y, size, randint[6], randint[7], degrees),
+							Domino(red[4], red2[4], red3[4], green[4], green2[4], green3[4], blue[4], blue2[4], blue3[4], x + 12 * size, y, size, randint[8], randint[9], degrees),
+							Domino(red[5], red2[5], red3[5], green[5], green2[5], green3[5], blue[5], blue2[5], blue3[5], x + 15 * size, y, size, randint[10], randint[11], degrees),
+							Domino(red[6], red2[6], red3[6], green[6], green2[6], green3[6], blue[6], blue2[6], blue3[6], x + 18 * size, y, size, randint[12], randint[13], degrees),
 						};
 
 	switch (msg)
