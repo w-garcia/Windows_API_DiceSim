@@ -463,9 +463,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					blue3[i] = (rand() % 256);
 				}
 				
-				
-				try //check if the background is dark
-				{
 					for (int i = 0; i < DominoSetLength; i++)
 					{
 						if ((red[i] < 128) && (green[i] < 128) && (blue[i] < 128))
@@ -498,11 +495,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						}
 					}
 				
-				}
-				catch (int a)
-				{
-					//This error is impossible
-				}
 				//otherwise just create dark dots
 				for (int i = 0; i < DominoSetLength; i++)
 				{
